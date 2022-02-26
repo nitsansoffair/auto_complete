@@ -72,3 +72,11 @@ class AutoComplete:
                     replaced_sentence.append(unknown_token)
             replaced_tokenized_sentences.append(replaced_sentence)
         return replaced_tokenized_sentences
+
+    def preprocess_data(self, train_data, test_data, count_threshold, unknown_token="<unk>",
+                        get_words_with_nplus_frequency=get_words_with_nplus_frequency,
+                        replace_oov_words_by_unk=replace_oov_words_by_unk):
+        vocabulary = self.get_words_with_nplus_frequency(tokenized_sentences=train_data, count_threshold=count_threshold)
+        train_data_replaced = self.replace_oov_words_by_unk(train_data, vocabulary, unknown_token)
+        test_data_replaced = self.replace_oov_words_by_unk(test_data, vocabulary, unknown_token)
+        return train_data_replaced, test_data_replaced, vocabulary

@@ -319,5 +319,123 @@ class AutoCompleteTest(unittest.TestCase):
             self.assertEqual(True, count_unk_result == test_case["expected"]["expected_count_unk"])
             self.assertEqual(True, result == test_case["expected"]["expected_list"])
 
+    def test_preprocess_data(self):
+        auto_complete = AutoComplete()
+        target = auto_complete.preprocess_data
+        test_cases = [
+            {
+                "name": "default_check",
+                "input": {
+                    "train_data": [["sky", "is", "blue", "."], ["leaves", "are", "green"]],
+                    "test_data": [["roses", "are", "red", "."]],
+                    "count_threshold": 1,
+                    "unknown_token": "<unk>",
+                },
+                "expected": {
+                    "train_data_replaced": [
+                        ["sky", "is", "blue", "."],
+                        ["leaves", "are", "green"],
+                    ],
+                    "test_data_replaced": [["<unk>", "are", "<unk>", "."]],
+                    "vocabulary": ["sky", "is", "blue", ".", "leaves", "are", "green"],
+                    "unk_count_train": 0,
+                    "unk_count_test": 2,
+                },
+            },
+            {
+                "name": "larger_check",
+                "input": {
+                    "train_data": [
+                        ["sky", "is", "blue", "."],
+                        ["leaves", "are", "green", "."],
+                        ["space", "is", "infinite", "?"],
+                        ["in", "sunset", "sky", "is", "red"],
+                    ],
+                    "test_data": [
+                        ["cats", "are", "animals", "."],
+                        ["is", "the", "dog", "red", "?"],
+                    ],
+                    "count_threshold": 1,
+                    "unknown_token": "-1",
+                },
+                "expected": {
+                    "train_data_replaced": [
+                        ["sky", "is", "blue", "."],
+                        ["leaves", "are", "green", "."],
+                        ["space", "is", "infinite", "?"],
+                        ["in", "sunset", "sky", "is", "red"],
+                    ],
+                    "test_data_replaced": [
+                        ["-1", "are", "-1", "."],
+                        ["is", "-1", "-1", "red", "?"],
+                    ],
+                    "vocabulary": [
+                        "sky",
+                        "is",
+                        "blue",
+                        ".",
+                        "leaves",
+                        "are",
+                        "green",
+                        "space",
+                        "infinite",
+                        "?",
+                        "in",
+                        "sunset",
+                        "red",
+                    ],
+                    "unk_count_train": 0,
+                    "unk_count_test": 4,
+                },
+            },
+            {
+                "name": "threshold_check",
+                "input": {
+                    "train_data": [
+                        ["sky", "is", "blue", "."],
+                        ["leaves", "are", "green", "."],
+                        ["space", "is", "infinite", "?"],
+                        ["in", "sunset", "sky", "is", "red"],
+                    ],
+                    "test_data": [
+                        ["cats", "are", "animals", "."],
+                        ["is", "the", "dog", "red", "?"],
+                    ],
+                    "count_threshold": 2,
+                    "unknown_token": "0",
+                },
+                "expected": {
+                    "train_data_replaced": [
+                        ["sky", "is", "0", "."],
+                        ["0", "0", "0", "."],
+                        ["0", "is", "0", "0"],
+                        ["0", "0", "sky", "is", "0"],
+                    ],
+                    "test_data_replaced": [
+                        ["0", "0", "0", "."],
+                        ["is", "0", "0", "0", "0"],
+                    ],
+                    "vocabulary": ["sky", "is", "."],
+                    "unk_count_train": 10,
+                    "unk_count_test": 7,
+                },
+            },
+        ]
+        for test_case in test_cases:
+            result = target(**test_case["input"])
+            for elem in result:
+                self.assertEqual(True, isinstance(elem, list))
+            count_unk_result = 0
+            for elem in result[0]:
+                if test_case["input"]["unknown_token"] in elem:
+                    count_unk_result += elem.count(test_case["input"]["unknown_token"])
+            self.assertEqual(True, count_unk_result == test_case["expected"]["unk_count_train"])
+            count_unk_result = 0
+            for elem in result[1]:
+                if test_case["input"]["unknown_token"] in elem:
+                    count_unk_result += elem.count(test_case["input"]["unknown_token"])
+            self.assertEqual(count_unk_result, test_case["expected"]["unk_count_test"])
+            self.assertEqual(True, len(result[2]) == len(test_case["expected"]["vocabulary"]))
+
 if __name__ == '__main__':
     unittest.main()
