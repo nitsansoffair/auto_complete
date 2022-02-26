@@ -41,3 +41,13 @@ class AutoComplete:
             reduced.append(sentence)
         tokenized_sentences = self.tokenize_sentences(reduced)
         return tokenized_sentences
+
+    def count_words(self, tokenized_sentences):
+        word_counts = {}
+        for sentence in tokenized_sentences:
+            for token in sentence:
+                if token not in word_counts.keys():
+                    word_counts[token] = 1
+                else:
+                    word_counts[token] += 1
+        return word_counts

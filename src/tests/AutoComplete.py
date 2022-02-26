@@ -147,5 +147,66 @@ class AutoCompleteTest(unittest.TestCase):
             self.assertEqual(True, len(result) == len(test_case["expected"]))
             self.assertEqual(True, result == test_case["expected"])
 
+    def test_count_words(self):
+        auto_complete = AutoComplete()
+        target = auto_complete.count_words
+        test_cases = [
+            {
+                "name": "default_check",
+                "input": [
+                    ["sky", "is", "blue", "."],
+                    ["leaves", "are", "green", "."],
+                    ["roses", "are", "red", "."],
+                ],
+                "expected": {
+                    "sky": 1,
+                    "is": 1,
+                    "blue": 1,
+                    ".": 3,
+                    "leaves": 1,
+                    "are": 2,
+                    "green": 1,
+                    "roses": 1,
+                    "red": 1,
+                },
+            },
+            {
+                "name": "larger_check",
+                "input": [
+                    ["sky", "is", "blue", "."],
+                    ["leaves", "are", "green", "."],
+                    ["space", "is", "infinite", "."],
+                    ["or", "is", "it", "?"],
+                    ["last", "sentence", "?", ",", "no"],
+                    ["in", "sunset", "sky", "is", "red"],
+                ],
+                "expected": {
+                    "sky": 2,
+                    "is": 4,
+                    "blue": 1,
+                    ".": 3,
+                    "leaves": 1,
+                    "are": 1,
+                    "green": 1,
+                    "space": 1,
+                    "infinite": 1,
+                    "or": 1,
+                    "it": 1,
+                    "?": 2,
+                    "last": 1,
+                    "sentence": 1,
+                    ",": 1,
+                    "no": 1,
+                    "in": 1,
+                    "sunset": 1,
+                    "red": 1,
+                },
+            },
+        ]
+        for test_case in test_cases:
+            result = target(test_case["input"])
+            self.assertEqual(True, isinstance(result, dict))
+            self.assertEqual(True, result == test_case["expected"])
+
 if __name__ == '__main__':
     unittest.main()
