@@ -261,5 +261,63 @@ class AutoCompleteTest(unittest.TestCase):
             self.assertEqual(True, len(result) == len(test_case["expected"]))
             self.assertEqual(True, result == test_case["expected"])
 
+    def test_replace_oov_words_by_unk(self):
+        auto_complete = AutoComplete()
+        target = auto_complete.replace_oov_words_by_unk
+        test_cases = [
+            {
+                "name": "default_check",
+                "input": {
+                    "tokenized_sentences": [["dogs", "run"], ["cats", "sleep"]],
+                    "vocabulary": ["dogs", "sleep"],
+                    "unknown_token": "<unk>",
+                },
+                "expected": {
+                    "expected_list": [["dogs", "<unk>"], ["<unk>", "sleep"]],
+                    "expected_count_unk": 2,
+                },
+            },
+            {
+                "name": "unk_check",
+                "input": {
+                    "tokenized_sentences": [
+                        ["sky", "is", "blue", "."],
+                        ["leaves", "are", "green", "."],
+                        ["space", "is", "infinite", "?"],
+                        ["in", "sunset", "sky", "is", "red"],
+                    ],
+                    "vocabulary": [
+                        "sky",
+                        "is",
+                        "blue",
+                        "are",
+                        ".",
+                        "space",
+                        "infinite",
+                        "red",
+                    ],
+                    "unknown_token": "-1",
+                },
+                "expected": {
+                    "expected_list": [
+                        ["sky", "is", "blue", "."],
+                        ["-1", "are", "-1", "."],
+                        ["space", "is", "infinite", "-1"],
+                        ["-1", "-1", "sky", "is", "red"],
+                    ],
+                    "expected_count_unk": 5,
+                },
+            },
+        ]
+        for test_case in test_cases:
+            result = target(**test_case["input"])
+            self.assertEqual(True, isinstance(result, type(test_case["expected"]["expected_list"])))
+            count_unk_result = 0
+            for elem in result:
+                if test_case["input"]["unknown_token"] in elem:
+                    count_unk_result += elem.count(test_case["input"]["unknown_token"])
+            self.assertEqual(True, count_unk_result == test_case["expected"]["expected_count_unk"])
+            self.assertEqual(True, result == test_case["expected"]["expected_list"])
+
 if __name__ == '__main__':
     unittest.main()

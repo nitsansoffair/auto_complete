@@ -59,3 +59,16 @@ class AutoComplete:
             if cnt >= count_threshold:
                 closed_vocab.append(word)
         return closed_vocab
+
+    def replace_oov_words_by_unk(self, tokenized_sentences, vocabulary, unknown_token="<unk>"):
+        vocabulary = set(vocabulary)
+        replaced_tokenized_sentences = []
+        for sentence in tokenized_sentences:
+            replaced_sentence = []
+            for token in sentence:
+                if token in vocabulary:
+                    replaced_sentence.append(token)
+                else:
+                    replaced_sentence.append(unknown_token)
+            replaced_tokenized_sentences.append(replaced_sentence)
+        return replaced_tokenized_sentences
