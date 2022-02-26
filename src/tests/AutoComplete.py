@@ -208,5 +208,58 @@ class AutoCompleteTest(unittest.TestCase):
             self.assertEqual(True, isinstance(result, dict))
             self.assertEqual(True, result == test_case["expected"])
 
+    def test_get_words_with_nplus_frequency(self):
+        auto_complete = AutoComplete()
+        target = auto_complete.get_words_with_nplus_frequency
+        test_cases = [
+            {
+                "name": "default_check",
+                "input": {
+                    "tokenized_sentences": [
+                        ["sky", "is", "blue", "."],
+                        ["leaves", "are", "green", "."],
+                        ["roses", "are", "red", "."],
+                    ],
+                    "count_threshold": 2,
+                },
+                "expected": [".", "are"],
+            },
+            {
+                "name": "long_check",
+                "input": {
+                    "tokenized_sentences": [
+                        ["sky", "is", "blue", "."],
+                        ["leaves", "are", "green", "."],
+                        ["space", "is", "infinite", "."],
+                        ["or", "is", "it", "?"],
+                        ["last", "sentence", "?", ",", "no"],
+                        ["in", "sunset", "sky", "is", "red"],
+                    ],
+                    "count_threshold": 2,
+                },
+                "expected": ["sky", "is", ".", "?"],
+            },
+            {
+                "name": "threshold_check",
+                "input": {
+                    "tokenized_sentences": [
+                        ["sky", "is", "blue", "."],
+                        ["leaves", "are", "green", "."],
+                        ["space", "is", "infinite", "."],
+                        ["or", "is", "it", "?"],
+                        ["last", "sentence", "?", ",", "no"],
+                        ["in", "sunset", "sky", "is", "red"],
+                    ],
+                    "count_threshold": 4,
+                },
+                "expected": ["is"],
+            },
+        ]
+        for test_case in test_cases:
+            result = target(**test_case["input"])
+            self.assertEqual(True, isinstance(result, type(test_case["expected"])))
+            self.assertEqual(True, len(result) == len(test_case["expected"]))
+            self.assertEqual(True, result == test_case["expected"])
+
 if __name__ == '__main__':
     unittest.main()

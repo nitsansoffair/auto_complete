@@ -51,3 +51,11 @@ class AutoComplete:
                 else:
                     word_counts[token] += 1
         return word_counts
+
+    def get_words_with_nplus_frequency(self, tokenized_sentences, count_threshold):
+        closed_vocab = []
+        word_counts = self.count_words(tokenized_sentences)
+        for word, cnt in word_counts.items():
+            if cnt >= count_threshold:
+                closed_vocab.append(word)
+        return closed_vocab
