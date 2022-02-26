@@ -116,5 +116,36 @@ class AutoCompleteTest(unittest.TestCase):
             self.assertEqual(True, len(result) == len(test_case["expected"]))
             self.assertEqual(True, test_case["expected"] == result)
 
+    def test_get_tokenized_data(self):
+        auto_complete = AutoComplete()
+        target = auto_complete.get_tokenized_data
+        test_cases = [
+            {
+                "name": "default_check",
+                "input": "Sky is blue.\nLeaves are green\nRoses are red.",
+                "expected": [
+                    ["sky", "is", "blue", "."],
+                    ["leaves", "are", "green"],
+                    ["roses", "are", "red", "."],
+                ],
+            },
+            {
+                "name": "spaces_check",
+                "input": "   Sky   is  blue.   \nLeaves are green.\nSpace  if  Infinite.\nOR IS IT?\n\n   \nLast sentence .\n",
+                "expected": [
+                    ["sky", "is", "blue", "."],
+                    ["leaves", "are", "green", "."],
+                    ["space", "if", "infinite", "."],
+                    ["or", "is", "it", "?"],
+                    ["last", "sentence", "."],
+                ],
+            },
+        ]
+        for test_case in test_cases:
+            result = target(test_case["input"])
+            self.assertEqual(True, isinstance(result, type(test_case["expected"])))
+            self.assertEqual(True, len(result) == len(test_case["expected"]))
+            self.assertEqual(True, result == test_case["expected"])
+
 if __name__ == '__main__':
     unittest.main()
