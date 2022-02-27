@@ -437,5 +437,125 @@ class AutoCompleteTest(unittest.TestCase):
             self.assertEqual(count_unk_result, test_case["expected"]["unk_count_test"])
             self.assertEqual(True, len(result[2]) == len(test_case["expected"]["vocabulary"]))
 
+    def test_count_n_grams(self):
+        auto_complete = AutoComplete()
+        target = auto_complete.count_n_grams
+        test_cases = [
+            {
+                "name": "default_check_1",
+                "input": {
+                    "data": [
+                        ["i", "like", "a", "cat"],
+                        ["this", "dog", "is", "like", "a", "cat"],
+                    ],
+                    "n": 1,
+                    "start_token": "<s>",
+                    "end_token": "<e>",
+                },
+                "expected": {
+                    ("<s>",): 2,
+                    ("i",): 1,
+                    ("like",): 2,
+                    ("a",): 2,
+                    ("cat",): 2,
+                    ("<e>",): 2,
+                    ("this",): 1,
+                    ("dog",): 1,
+                    ("is",): 1,
+                },
+            },
+            {
+                "name": "default_check_2",
+                "input": {
+                    "data": [
+                        ["i", "like", "a", "cat"],
+                        ["this", "dog", "is", "like", "a", "cat"],
+                    ],
+                    "n": 2,
+                    "start_token": "<s>",
+                    "end_token": "<e>",
+                },
+                "expected": {
+                    ("<s>", "<s>"): 2,
+                    ("<s>", "i"): 1,
+                    ("i", "like"): 1,
+                    ("like", "a"): 2,
+                    ("a", "cat"): 2,
+                    ("cat", "<e>"): 2,
+                    ("<s>", "this"): 1,
+                    ("this", "dog"): 1,
+                    ("dog", "is"): 1,
+                    ("is", "like"): 1,
+                },
+            },
+            {
+                "name": "large_check",
+                "input": {
+                    "data": [
+                        ["in", "sunset", "sky", "is", "red"],
+                        ["i", "like", "a", "cat"],
+                        ["this", "dog", "is", "like", "a", "cat"],
+                        [
+                            "really",
+                            "really",
+                            "long",
+                            "sentence",
+                            ".",
+                            "it",
+                            "is",
+                            "very",
+                            "long",
+                            "indeed",
+                            ";",
+                            "so",
+                            "long",
+                            "...",
+                        ],
+                    ],
+                    "n": 3,
+                    "start_token": "-1",
+                    "end_token": "-2",
+                },
+                "expected": {
+                    ("-1", "-1", "-1"): 4,
+                    ("-1", "-1", "in"): 1,
+                    ("-1", "in", "sunset"): 1,
+                    ("in", "sunset", "sky"): 1,
+                    ("sunset", "sky", "is"): 1,
+                    ("sky", "is", "red"): 1,
+                    ("is", "red", "-2"): 1,
+                    ("-1", "-1", "i"): 1,
+                    ("-1", "i", "like"): 1,
+                    ("i", "like", "a"): 1,
+                    ("like", "a", "cat"): 2,
+                    ("a", "cat", "-2"): 2,
+                    ("-1", "-1", "this"): 1,
+                    ("-1", "this", "dog"): 1,
+                    ("this", "dog", "is"): 1,
+                    ("dog", "is", "like"): 1,
+                    ("is", "like", "a"): 1,
+                    ("-1", "-1", "really"): 1,
+                    ("-1", "really", "really"): 1,
+                    ("really", "really", "long"): 1,
+                    ("really", "long", "sentence"): 1,
+                    ("long", "sentence", "."): 1,
+                    ("sentence", ".", "it"): 1,
+                    (".", "it", "is"): 1,
+                    ("it", "is", "very"): 1,
+                    ("is", "very", "long"): 1,
+                    ("very", "long", "indeed"): 1,
+                    ("long", "indeed", ";"): 1,
+                    ("indeed", ";", "so"): 1,
+                    (";", "so", "long"): 1,
+                    ("so", "long", "..."): 1,
+                    ("long", "...", "-2"): 1,
+                },
+            },
+        ]
+        for test_case in test_cases:
+            result = target(**test_case["input"])
+            self.assertEqual(True, isinstance(result, dict))
+            self.assertEqual(result, test_case["expected"])
+
 if __name__ == '__main__':
     unittest.main()

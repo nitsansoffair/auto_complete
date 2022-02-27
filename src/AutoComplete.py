@@ -80,3 +80,21 @@ class AutoComplete:
         train_data_replaced = self.replace_oov_words_by_unk(train_data, vocabulary, unknown_token)
         test_data_replaced = self.replace_oov_words_by_unk(test_data, vocabulary, unknown_token)
         return train_data_replaced, test_data_replaced, vocabulary
+
+    def build(self, sentence, index, n):
+        n_gram = []
+        for plus in range(n):
+            n_gram.append(sentence[index + plus])
+        return tuple(n_gram)
+
+    def count_n_grams(self, data, n, start_token='<s>', end_token='<e>'):
+        n_grams = {}
+        for sentence in data:
+            sentence = [start_token] * n + sentence + [end_token]
+            for index in range(len(sentence) - n + 1):
+                n_gram = self.build(sentence, index, n)
+                if n_gram in n_grams.keys():
+                    n_grams[n_gram] += 1
+                else:
+                    n_grams[n_gram] = 1
+        return n_grams
