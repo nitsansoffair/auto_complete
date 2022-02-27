@@ -166,3 +166,21 @@ class AutoComplete:
             product_pi *= 1 / probability
         perplexity = (product_pi) ** (1 / N)
         return perplexity
+
+    def suggest_a_word(self, previous_tokens, n_gram_counts, n_plus1_gram_counts, vocabulary, end_token='<e>',
+                       unknown_token="<unk>", k=1.0, start_with=None):
+        n = len(list(n_gram_counts.keys())[0])
+        previous_n_gram = previous_tokens[-n:]
+        probabilities = self.estimate_probabilities(previous_n_gram,
+                                               n_gram_counts, n_plus1_gram_counts,
+                                               vocabulary, k=k)
+        suggestion = None
+        max_prob = 0
+        for word, prob in probabilities.items():
+            if start_with is not None:
+                if start_with not in word or word.index(start_with) != 0:
+                    continue
+            if prob > max_prob:
+                suggestion = word
+                max_prob = prob
+        return suggestion, max_prob
