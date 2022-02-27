@@ -98,3 +98,14 @@ class AutoComplete:
                 else:
                     n_grams[n_gram] = 1
         return n_grams
+
+    def estimate_probability(self, word, previous_n_gram,
+                             n_gram_counts, n_plus1_gram_counts, vocabulary_size, k=1.0):
+        previous_n_gram = tuple(previous_n_gram)
+        previous_n_gram_count = n_gram_counts[previous_n_gram] if previous_n_gram in n_gram_counts.keys() else 0
+        denominator = previous_n_gram_count + k * vocabulary_size
+        n_plus1_gram = tuple(list(previous_n_gram) + [word])
+        n_plus1_gram_count = n_plus1_gram_counts[n_plus1_gram] if n_plus1_gram in n_plus1_gram_counts.keys() else 0
+        numerator = n_plus1_gram_count + k
+        probability = numerator / denominator
+        return probability

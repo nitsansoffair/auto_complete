@@ -1,5 +1,7 @@
 import unittest
 
+import numpy as np
+
 from src.AutoComplete import AutoComplete
 
 
@@ -556,6 +558,125 @@ class AutoCompleteTest(unittest.TestCase):
             result = target(**test_case["input"])
             self.assertEqual(True, isinstance(result, dict))
             self.assertEqual(result, test_case["expected"])
+
+    def test_estimate_probability(self):
+        auto_complete = AutoComplete()
+        target = auto_complete.estimate_probability
+        test_cases = [
+            {
+                "name": "default_check",
+                "input": {
+                    "word": "cat",
+                    "previous_n_gram": "a",
+                    "n_gram_counts": {
+                        ("<s>",): 2,
+                        ("i",): 1,
+                        ("like",): 2,
+                        ("a",): 2,
+                        ("cat",): 2,
+                        ("<e>",): 2,
+                        ("this",): 1,
+                        ("dog",): 1,
+                        ("is",): 1,
+                    },
+                    "n_plus1_gram_counts": {
+                        ("<s>", "<s>"): 2,
+                        ("<s>", "i"): 1,
+                        ("i", "like"): 1,
+                        ("like", "a"): 2,
+                        ("a", "cat"): 2,
+                        ("cat", "<e>"): 2,
+                        ("<s>", "this"): 1,
+                        ("this", "dog"): 1,
+                        ("dog", "is"): 1,
+                        ("is", "like"): 1,
+                    },
+                    "vocabulary_size": 7,
+                    "k": 1,
+                },
+                "expected": 0.3333333333333333,
+            },
+            {
+                "name": "larger_check",
+                "input": {
+                    "word": "i",
+                    "previous_n_gram": "like",
+                    "n_gram_counts": {
+                        ("-1", "-1"): 4,
+                        ("-1", "in"): 1,
+                        ("in", "sunset"): 1,
+                        ("sunset", "sky"): 1,
+                        ("sky", "is"): 1,
+                        ("is", "red"): 1,
+                        ("red", "-2"): 1,
+                        ("-1", "i"): 1,
+                        ("i", "like"): 1,
+                        ("like", "a"): 2,
+                        ("a", "cat"): 2,
+                        ("cat", "-2"): 2,
+                        ("-1", "this"): 1,
+                        ("this", "dog"): 1,
+                        ("dog", "is"): 1,
+                        ("is", "like"): 1,
+                        ("-1", "really"): 1,
+                        ("really", "really"): 1,
+                        ("really", "long"): 1,
+                        ("long", "sentence"): 1,
+                        ("sentence", "."): 1,
+                        (".", "it"): 1,
+                        ("it", "is"): 1,
+                        ("is", "very"): 1,
+                        ("very", "long"): 1,
+                        ("long", "indeed"): 1,
+                        ("indeed", ";"): 1,
+                        (";", "so"): 1,
+                        ("so", "long"): 1,
+                        ("long", "..."): 1,
+                        ("...", "-2"): 1,
+                    },
+                    "n_plus1_gram_counts": {
+                        ("-1", "-1", "-1"): 4,
+                        ("-1", "-1", "in"): 1,
+                        ("-1", "in", "sunset"): 1,
+                        ("in", "sunset", "sky"): 1,
+                        ("sunset", "sky", "is"): 1,
+                        ("sky", "is", "red"): 1,
+                        ("is", "red", "-2"): 1,
+                        ("-1", "-1", "i"): 1,
+                        ("-1", "i", "like"): 1,
+                        ("i", "like", "a"): 1,
+                        ("like", "a", "cat"): 2,
+                        ("a", "cat", "-2"): 2,
+                        ("-1", "-1", "this"): 1,
+                        ("-1", "this", "dog"): 1,
+                        ("this", "dog", "is"): 1,
+                        ("dog", "is", "like"): 1,
+                        ("is", "like", "a"): 1,
+                        ("-1", "-1", "really"): 1,
+                        ("-1", "really", "really"): 1,
+                        ("really", "really", "long"): 1,
+                        ("really", "long", "sentence"): 1,
+                        ("long", "sentence", "."): 1,
+                        ("sentence", ".", "it"): 1,
+                        (".", "it", "is"): 1,
+                        ("it", "is", "very"): 1,
+                        ("is", "very", "long"): 1,
+                        ("very", "long", "indeed"): 1,
+                        ("long", "indeed", ";"): 1,
+                        ("indeed", ";", "so"): 1,
+                        (";", "so", "long"): 1,
+                        ("so", "long", "..."): 1,
+                        ("long", "...", "-2"): 1,
+                    },
+                    "vocabulary_size": 21,
+                    "k": 2,
+                },
+                "expected": 0.047619047619047616,
+            },
+        ]
+        for test_case in test_cases:
+            result = target(**test_case["input"])
+            self.assertEqual(True, np.isclose(result, test_case["expected"]))
 
 if __name__ == '__main__':
     unittest.main()
